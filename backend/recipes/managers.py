@@ -3,8 +3,6 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.db.models import Exists, OuterRef, Prefetch
 
-from users.models import Follow
-
 User = get_user_model()
 app_config = apps.get_app_config('recipes')
 
@@ -15,13 +13,7 @@ class RecipeManager(models.Manager):
         FavoriteRecipe = app_config.get_model('FavoriteRecipe')
         ShoppingCart = app_config.get_model('ShoppingCart')
 
-        author_qs = User.objects.annotate(
-            is_subscribed=Exists(
-                Follow.objects.filter(
-                    follower_id=user.id, follow_to_id=OuterRef('pk')
-                ),
-            ),
-        )
+        author_qs = User.objects.is_subscribed(user)
         ingredients_qs = RecipeIngredient.objects.select_related(
             'ingredient__measurement_unit'
         )
