@@ -29,12 +29,14 @@ DJANGO_CORE_APPS = [
 
 PROJECT_APPS = [
     'users.apps.UsersConfig',
+    'recipes.apps.RecipesConfig',
 ]
 
 THIRD_PARTY_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'djoser',
+    'django_filters',
 ]
 
 INSTALLED_APPS = DJANGO_CORE_APPS + PROJECT_APPS + THIRD_PARTY_APPS
@@ -75,7 +77,9 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
     ),
-    'NON_FIELD_ERRORS_KEY': 'errors'
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ),
 }
 
 DJOSER = {
@@ -83,6 +87,10 @@ DJOSER = {
         'user': 'users.serializers.BaseUserSerializer',
         'current_user': 'users.serializers.BaseUserSerializer',
     },
+    'PERMISSIONS': {
+        'user_list': ['rest_framework.permissions.AllowAny']
+    },
+    'HIDE_USERS': False
 }
 
 
@@ -132,6 +140,13 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = 'static/'
+
+STATIC_ROOT = BASE_DIR.joinpath('static')
+
+MEDIA_URL = '/media/'
+
+MEDIA_ROOT = BASE_DIR.joinpath('media')
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
