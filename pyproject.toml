@@ -12,4 +12,4 @@ force-exclude = '''
 profile = 'black'
 line_length = 79
 extend_skip = ['migrations']
-known_local_folder = ['users']
+known_local_folder = ['foodgram', 'users', 'recipes']

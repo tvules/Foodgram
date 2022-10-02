@@ -2,4 +2,6 @@ pre-commit==2.20.0
 django==4.1.1
 djangorestframework==3.13.1
 djoser==2.1.0
-factory_boy==3.2.1
+pillow==9.2.0
+drf-extra-fields==3.4.0
+django-filter==22.1
