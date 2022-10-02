@@ -3,6 +3,8 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from users.managers import CustomUserManager
+
 
 class BaseModel(models.Model):
     """The "created_at" and "updated_at" fields are included."""
@@ -24,8 +26,11 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
+    objects = CustomUserManager()
+
     class Meta(AbstractUser.Meta):
         db_table = 'auth_user'
+        ordering = ('-date_joined',)
 
 
 class Follow(BaseModel):

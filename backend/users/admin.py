@@ -7,6 +7,15 @@ from .models import Follow, User
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
+    list_display = (
+        'id',
+        'username',
+        'email',
+        'first_name',
+        'last_name',
+        'is_staff',
+    )
+    list_display_links = ('username',)
     add_form = CustomUserCreationForm
     add_fieldsets = (
         (

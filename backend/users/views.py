@@ -1,11 +1,14 @@
 from django.contrib.auth import get_user_model
+from django.http import Http404
+from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
-from rest_framework import exceptions, generics, permissions, status
-from rest_framework.response import Response
+from rest_framework import exceptions, generics, mixins, permissions
 from rest_framework.settings import api_settings
 
+from .models import Follow
 from .paginations import PageNumberLimitPagination
 from .serializers import FollowSerializer, FollowToSerializer
+from .services import clean_recipe_limit_param
 
 User = get_user_model()
 
@@ -15,6 +18,10 @@ class CustomUserViewSet(UserViewSet):
 
     pagination_class = PageNumberLimitPagination
 
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.is_subscribed(self.request.user)
+
 
 class FollowToListView(generics.ListAPIView):
     """Returns a list of users the author is follow to."""
@@ -23,44 +30,62 @@ class FollowToListView(generics.ListAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     pagination_class = PageNumberLimitPagination
 
+    def get(self, request, *args, **kwargs):
+        clean_recipe_limit_param(request)
+        return super().get(request, *args, **kwargs)
+
     def get_queryset(self):
-        return User.objects.filter(follow_to__follower=self.request.user)
+        return (
+            User.objects.prefetch_related('recipes')
+            .filter(follow_to__follower_id=self.request.user.id)
+            .order_by('-follow_to__created_at')
+        )
 
 
-class FollowView(generics.CreateAPIView, generics.DestroyAPIView):
+class FollowView(
+    mixins.CreateModelMixin, mixins.DestroyModelMixin, generics.GenericAPIView
+):
     """Create/destroy view for Follow model."""
 
     serializer_class = FollowSerializer
-    queryset = User.objects.all()
     permission_classes = (permissions.IsAuthenticated,)
+    lookup_field = 'follow_to_id'
+    error_messages = {'not_follower': 'You are not a follower.'}
+
+    def post(self, request, *args, **kwargs):
+        clean_recipe_limit_param(request)
+        request.data['follow_to'] = kwargs['follow_to_id']
+        return self.create(request, *args, **kwargs)
+
+    def delete(self, request, *args, **kwargs):
+        return self.destroy(request, *args, **kwargs)
+
+    def get_queryset(self):
+        return Follow.objects.filter(follower_id=self.request.user.id)
 
     def create(self, request, *args, **kwargs):
-        follow_to = self.get_object()
-
-        serializer = self.get_serializer(data={'follow_to': follow_to.pk})
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-
-        follow_to_serializer = self._get_follow_to_serializer(follow_to)
-        headers = self.get_success_headers(serializer.data)
-        return Response(
-            follow_to_serializer.data,
-            status=status.HTTP_201_CREATED,
-            headers=headers,
+        follow_to = get_object_or_404(
+            User.objects.prefetch_related('recipes'),
+            pk=kwargs['follow_to_id'],
         )
-
-    def _get_follow_to_serializer(self, *args, **kwargs):
-        kwargs.setdefault('context', self.get_serializer_context())
-        return FollowToSerializer(*args, **kwargs)
+        response = super().create(request, *args, **kwargs)
+        repr_serializer = FollowToSerializer(
+            follow_to, context=self.get_serializer_context()
+        )
+        response.data = repr_serializer.data
+        return response
 
     def destroy(self, request, *args, **kwargs):
-        follow_to = self.get_object()
-
-        instance = self.request.user.follower.filter(follow_to=follow_to)
-        if not instance:
-            raise exceptions.ValidationError(
-                {api_settings.NON_FIELD_ERRORS_KEY: ['You are not a follower']}
-            )
-
-        self.perform_destroy(instance)
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        try:
+            return super().destroy(request, *args, **kwargs)
+        except Http404 as exc:
+            pk = kwargs['follow_to_id']
+            if User.objects.filter(pk=pk).exists():
+                raise exceptions.ValidationError(
+                    {
+                        api_settings.NON_FIELD_ERRORS_KEY: [
+                            self.error_messages['not_follower']
+                        ]
+                    }
+                )
+            raise exc
