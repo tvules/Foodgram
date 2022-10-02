@@ -15,7 +15,7 @@ from recipes.serializers.nested import (
     RecipeIngredientSerializer,
     ShortRecipeSerializer,
 )
-from users.serializers.nested import BaseUserSerializer
+from users.serializers.nested import UserSerializer
 
 User = get_user_model()
 
@@ -41,7 +41,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 class RecipeSerializer(serializers.ModelSerializer):
     """Serializer for Recipe model."""
 
-    author = BaseUserSerializer(default=serializers.CurrentUserDefault())
+    author = UserSerializer(default=serializers.CurrentUserDefault())
     image = Base64ImageField()
     ingredients = RecipeIngredientSerializer(
         many=True,

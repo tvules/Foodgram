@@ -3,19 +3,19 @@ from rest_framework import serializers
 
 from recipes.serializers.nested import ShortRecipeSerializer
 from users.models import Follow
-from users.serializers.nested import BaseUserSerializer
+from users.serializers.nested import UserSerializer
 
 User = get_user_model()
 
 
-class FollowToSerializer(BaseUserSerializer):
+class FollowToSerializer(UserSerializer):
     """Serializer for User model on follow page."""
 
     recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
-    class Meta(BaseUserSerializer.Meta):
-        fields = BaseUserSerializer.Meta.fields + ('recipes', 'recipes_count')
+    class Meta(UserSerializer.Meta):
+        fields = UserSerializer.Meta.fields + ('recipes', 'recipes_count')
 
     def get_recipes(self, obj):
         # не лучший способ

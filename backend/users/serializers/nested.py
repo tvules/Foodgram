@@ -1,14 +1,14 @@
-from djoser.serializers import UserSerializer
+from djoser.serializers import UserSerializer as DjoserUserSerializer
 from rest_framework import serializers
 
 
-class BaseUserSerializer(UserSerializer):
+class UserSerializer(DjoserUserSerializer):
     """Base serializer for User model."""
 
     is_subscribed = serializers.SerializerMethodField()
 
-    class Meta(UserSerializer.Meta):
-        fields = UserSerializer.Meta.fields + ('is_subscribed',)
+    class Meta(DjoserUserSerializer.Meta):
+        fields = DjoserUserSerializer.Meta.fields + ('is_subscribed',)
 
     def get_is_subscribed(self, obj):
         try:

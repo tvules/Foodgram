@@ -1,5 +1,5 @@
 from django.apps import apps
-from django.contrib.auth.models import UserManager
+from django.contrib.auth.models import UserManager as DjangoUserManager
 from django.db import models
 from django.db.models import Exists, OuterRef, Value
 
@@ -24,5 +24,5 @@ class UserQuerySet(models.QuerySet):
         )
 
 
-class CustomUserManager(UserManager.from_queryset(UserQuerySet)):
+class UserManager(DjangoUserManager.from_queryset(UserQuerySet)):
     pass

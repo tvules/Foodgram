@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from djoser.views import UserViewSet
+from djoser.views import UserViewSet as DjoserUserViewSet
 from rest_framework import exceptions, generics, mixins, permissions
 from rest_framework.settings import api_settings
 
@@ -13,7 +13,7 @@ from .services import clean_recipe_limit_param
 User = get_user_model()
 
 
-class CustomUserViewSet(UserViewSet):
+class UserViewSet(DjoserUserViewSet):
     """Djoser view set for User model."""
 
     pagination_class = PageNumberLimitPagination

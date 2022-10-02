@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from users.managers import CustomUserManager
+from users.managers import UserManager
 
 
 class BaseModel(models.Model):
@@ -26,7 +26,7 @@ class User(AbstractUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
-    objects = CustomUserManager()
+    objects = UserManager()
 
     class Meta(AbstractUser.Meta):
         db_table = 'auth_user'

@@ -1,8 +1,8 @@
 from .common import FollowSerializer, FollowToSerializer
-from .nested import BaseUserSerializer
+from .nested import UserSerializer
 
 __all__ = [
     'FollowSerializer',
     'FollowToSerializer',
-    'BaseUserSerializer',
+    'UserSerializer',
 ]

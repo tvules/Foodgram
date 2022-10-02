@@ -1,12 +1,12 @@
 from django.contrib import admin
-from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 
-from .forms import CustomUserCreationForm
+from .forms import UserCreationForm
 from .models import Follow, User
 
 
 @admin.register(User)
-class CustomUserAdmin(UserAdmin):
+class UserAdmin(DjangoUserAdmin):
     list_display = (
         'id',
         'username',
@@ -16,7 +16,7 @@ class CustomUserAdmin(UserAdmin):
         'is_staff',
     )
     list_display_links = ('username',)
-    add_form = CustomUserCreationForm
+    add_form = UserCreationForm
     add_fieldsets = (
         (
             None,

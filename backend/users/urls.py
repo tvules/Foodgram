@@ -1,11 +1,11 @@
 from django.urls import path
 
-from .views import CustomUserViewSet, FollowToListView, FollowView
+from .views import FollowToListView, FollowView, UserViewSet
 from foodgram.urls import router
 
 app_name = 'users'
 
-router.register('users', CustomUserViewSet, basename='user')
+router.register('users', UserViewSet, basename='user')
 
 urlpatterns = [
     path(
