@@ -18,7 +18,6 @@ class FollowToSerializer(UserSerializer):
         fields = UserSerializer.Meta.fields + ('recipes', 'recipes_count')
 
     def get_recipes(self, obj):
-        # не лучший способ
         requests = self.context['request']
         recipes = obj.recipes.all()
 

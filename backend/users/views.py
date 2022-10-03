@@ -65,7 +65,7 @@ class FollowView(
 
     def create(self, request, *args, **kwargs):
         follow_to = get_object_or_404(
-            User.objects.prefetch_related('recipes'),
+            User.objects.all(),
             pk=kwargs['follow_to_id'],
         )
         response = super().create(request, *args, **kwargs)
