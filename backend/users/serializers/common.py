@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from recipes.serializers.nested import ShortRecipeSerializer
+from recipes.serializers import RecipeSerializer
 from users.models import Follow
 from users.serializers.nested import UserSerializer
 
@@ -28,7 +28,8 @@ class FollowToSerializer(UserSerializer):
             except ValueError:
                 pass
 
-        return ShortRecipeSerializer(recipes, many=True).data
+        fields = ('id', 'name', 'image', 'cooking_time')
+        return RecipeSerializer(recipes, many=True, fields=fields).data
 
     def get_is_subscribed(self, obj):
         return True

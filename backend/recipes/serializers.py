@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.core.validators import MaxValueValidator, MinValueValidator
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers
 from rest_framework.serializers import SerializerMethodField
@@ -11,10 +12,6 @@ from recipes.models import (
     Tag,
 )
 from recipes.serializer_fields import CustomPKRelatedField
-from recipes.serializers.nested import (
-    RecipeIngredientSerializer,
-    ShortRecipeSerializer,
-)
 from users.serializers.nested import UserSerializer
 
 User = get_user_model()
@@ -36,6 +33,26 @@ class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
         fields = ('id', 'name', 'measurement_unit')
+
+
+class RecipeIngredientSerializer(serializers.ModelSerializer):
+    """Ingredient serializer for Recipe model."""
+
+    id = serializers.PrimaryKeyRelatedField(
+        queryset=Ingredient.objects.all(),
+        source='ingredient',
+    )
+    name = serializers.ReadOnlyField(source='ingredient.name')
+    measurement_unit = serializers.StringRelatedField(
+        source='ingredient.measurement_unit',
+    )
+    amount = serializers.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(32767)],
+    )
+
+    class Meta:
+        model = Recipe.ingredients.through
+        fields = ('id', 'name', 'measurement_unit', 'amount')
 
 
 class RecipeSerializer(serializers.ModelSerializer):
@@ -60,6 +77,16 @@ class RecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         exclude = ('created_at', 'updated_at')
+
+    def __init__(self, *args, **kwargs):
+        fields = kwargs.pop('fields', None)
+        super().__init__(*args, **kwargs)
+
+        if fields is not None:
+            allowed = set(fields)
+            existing = set(self.fields)
+            for field_name in existing - allowed:
+                self.fields.pop(field_name)
 
     def get_is_favorited(self, obj):
         return getattr(obj, 'in_favorite_recipe', False)
@@ -122,7 +149,6 @@ class RecipeToUserSerializerMixin(serializers.Serializer):
 
     user = serializers.HiddenField(default=serializers.CurrentUserDefault())
     recipe = serializers.PrimaryKeyRelatedField(
-        write_only=True,
         queryset=Recipe.objects.all(),
     )
 
@@ -130,7 +156,9 @@ class RecipeToUserSerializerMixin(serializers.Serializer):
         fields = ('user', 'recipe')
 
     def to_representation(self, instance):
-        return ShortRecipeSerializer().to_representation(instance.recipe)
+        fields = ('id', 'name', 'image', 'cooking_time')
+        return RecipeSerializer(instance.recipe, fields=fields).data
+        # return ShortRecipeSerializer().to_representation(instance.recipe)
 
 
 class FavoriteRecipeSerializer(
@@ -163,7 +191,7 @@ class ShoppingCartSerializer(
                 queryset=model.objects.all(),
                 fields=['user', 'recipe'],
                 message=(
-                    'The recipe has already been added to the shopping cart'
+                    'The recipe has already been added to the shopping cart.'
                 ),
             ),
         ]
