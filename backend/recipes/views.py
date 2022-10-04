@@ -28,7 +28,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     """ViewSet for Ingredient model."""
 
     serializer_class = IngredientSerializer
-    queryset = Ingredient.objects.all()
+    queryset = Ingredient.objects.select_related('measurement_unit')
     permission_classes = (permissions.AllowAny,)
     filterset_class = IngredientFilter
 
