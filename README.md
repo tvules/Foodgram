@@ -41,12 +41,7 @@ DB_PORT=5432
 
 #### 3. Выполните команду для сборки контейнера:
 
-MacOS / Linix
-```
-sudo docker compose up
-```
 
-Windows
 ```
 docker compose up
 ```
