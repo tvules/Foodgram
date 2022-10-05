@@ -4,18 +4,9 @@ from django.db import models
 
 from .managers import RecipeManager
 from .validators import HEXColorValidator
+from users.models import BaseModel
 
 User = get_user_model()
-
-
-class BaseModel(models.Model):
-    """Included "created_at" and "updated_at" fields."""
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        abstract = True
 
 
 class Tag(models.Model):
