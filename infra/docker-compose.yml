@@ -8,6 +8,7 @@ volumes:
 services:
 
   db:
+    restart: always
     image: postgres:13.0
     volumes:
       - postgres_data:/var/lib/postgresql/data/
@@ -15,6 +16,7 @@ services:
       - ./.env
 
   web:
+    restart: always
     depends_on: [db]
     build:
       context: ../backend
@@ -33,6 +35,7 @@ services:
       - ../frontend/:/app/result_build/
 
   nginx:
+    restart: always
     depends_on: [frontend]
     image: nginx:1.19.3
     ports:
