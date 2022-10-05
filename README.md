@@ -37,7 +37,7 @@ DB_HOST=db
 DB_PORT=5432
 ```
 
-<sub>*значения приведены для примера</sub>
+*значения приведены для примера
 
 #### 3. Выполните команду для сборки контейнера:
 
@@ -62,4 +62,4 @@ docker compose exec infra_web_1 python manage.py createsuperuser
 
 ---
 
-<h5 align="center">Автор проекта: [Petrukhin Ilya](https://github.com/tvules)</h5>
+<h5 align="center">Автор проекта: <a href="https://github.com/tvules">Petrukhin Ilya</a></h5>
