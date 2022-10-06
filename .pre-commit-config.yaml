@@ -15,4 +15,4 @@ repos:
     hooks:
       - id: flake8
         exclude: migrations/
-        additional_dependencies: [pep8-naming]
+        additional_dependencies: [pep8-naming, flake8-isort]
