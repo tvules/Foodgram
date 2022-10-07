@@ -49,8 +49,7 @@ class BaseRecipeToUserView(
 
     def get_list_name(self):
         assert self.list_name is not None, (
-            "'%s' should either include a `list_name` attribute, "
-            "or override the `get_list_name()` method."
-            % self.__class__.__name__
+            f"'{self.__class__.__name__}' should either include a `list_name` "
+            "attribute, or override the `get_list_name()` method."
         )
         return self.list_name
