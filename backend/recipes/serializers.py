@@ -71,6 +71,9 @@ class RecipeSerializer(serializers.ModelSerializer):
         queryset=Tag.objects.all(),
         serializer_repr_class=TagSerializer,
     )
+    cooking_time = serializers.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(32767)],
+    )
     is_favorited = SerializerMethodField()
     is_in_shopping_cart = SerializerMethodField()
 
