@@ -49,7 +49,7 @@ class Ingredient(models.Model):
         ordering = ('name',)
         constraints = [
             models.UniqueConstraint(
-                fields=['name', 'measurement_unit'],
+                fields=('name', 'measurement_unit'),
                 name='unique_ingredient',
             ),
         ]
@@ -78,7 +78,9 @@ class Recipe(BaseModel):
     name = models.CharField(max_length=200)
     text = models.TextField()
     image = models.ImageField()
-    cooking_time = models.PositiveSmallIntegerField()
+    cooking_time = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1)],
+    )
 
     objects = RecipeManager()
 
@@ -87,6 +89,26 @@ class Recipe(BaseModel):
 
     def __str__(self):
         return self.name
+
+    def _get_old_image(self):
+        if self.pk is None:
+            return None
+        try:
+            return self.__class__.objects.get(pk=self.pk).image
+        except self.__class__.DoesNotExist:
+            return None
+
+    def save(self, *args, **kwargs):
+        old_image = self._get_old_image()
+        save_result = super().save(*args, **kwargs)
+        if old_image is not None and old_image != self.image:
+            old_image.delete(save=False)
+        return save_result
+
+    def delete(self, *args, **kwargs):
+        delete_result = super().delete(*args, **kwargs)
+        self.image.delete(save=False)
+        return delete_result
 
 
 class RecipeTag(models.Model):
@@ -108,7 +130,7 @@ class RecipeTag(models.Model):
         verbose_name = 'tag'
         constraints = [
             models.UniqueConstraint(
-                fields=['recipe', 'tag'],
+                fields=('recipe', 'tag'),
                 name='unique_recipe_tag',
             ),
         ]
@@ -136,7 +158,7 @@ class RecipeIngredient(models.Model):
         verbose_name = 'ingredient'
         constraints = [
             models.UniqueConstraint(
-                fields=['recipe', 'ingredient'],
+                fields=('recipe', 'ingredient'),
                 name='unique_recipe_ingredient',
             ),
         ]
@@ -169,7 +191,7 @@ class FavoriteRecipe(BaseRecipeToUser):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['user', 'recipe'],
+                fields=('user', 'recipe'),
                 name='unique_favorite_recipe',
             ),
         ]
@@ -181,7 +203,7 @@ class ShoppingCart(BaseRecipeToUser):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['user', 'recipe'],
+                fields=('user', 'recipe'),
                 name='unique_shopping_cart_recipe',
             ),
         ]
