@@ -71,6 +71,9 @@ class RecipeSerializer(serializers.ModelSerializer):
         queryset=Tag.objects.all(),
         serializer_repr_class=TagSerializer,
     )
+    cooking_time = serializers.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(32767)],
+    )
     is_favorited = SerializerMethodField()
     is_in_shopping_cart = SerializerMethodField()
 
@@ -123,9 +126,9 @@ class RecipeSerializer(serializers.ModelSerializer):
             setattr(instance, attr, value)
         instance.save()
 
-        if tags is not None:
+        if tags:
             self._set_tags(instance, tags)
-        if ingredients is not None:
+        if ingredients:
             self._set_ingredients(instance, ingredients)
 
         return instance
@@ -158,7 +161,6 @@ class RecipeToUserSerializerMixin(serializers.Serializer):
     def to_representation(self, instance):
         fields = ('id', 'name', 'image', 'cooking_time')
         return RecipeSerializer(instance.recipe, fields=fields).data
-        # return ShortRecipeSerializer().to_representation(instance.recipe)
 
 
 class FavoriteRecipeSerializer(
