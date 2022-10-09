@@ -3,7 +3,7 @@ from django.core.validators import MinValueValidator
 from django.db import models
 
 from .managers import RecipeManager
-from .validators import HEXColorValidator
+from .fields import HEXColorField
 from users.models import BaseModel
 
 User = get_user_model()
@@ -13,11 +13,7 @@ class Tag(models.Model):
     """Tag model."""
 
     name = models.CharField(unique=True, db_index=True, max_length=200)
-    color = models.CharField(
-        unique=True,
-        max_length=7,
-        validators=[HEXColorValidator()],
-    )
+    color = HEXColorField(unique=True)
     slug = models.SlugField(unique=True, max_length=200)
 
     class Meta:
