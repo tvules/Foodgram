@@ -8,6 +8,13 @@
 
 ---
 
+#### Зарегистрированный суперюзер
+
+```
+Login: Macorone@mail.ru
+Password: wwd-f5v-CSB-WF5
+```
+
 ### Технологии
 
 - Django
